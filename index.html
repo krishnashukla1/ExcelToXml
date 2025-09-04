@@ -347,24 +347,51 @@
     });
 
     // Add animation on form submission
-    document.getElementById('converterForm').addEventListener('submit', function(e) {
-      const fileInput = document.getElementById('fileInput');
-      if (!fileInput.value) {
-        e.preventDefault();
-        // Add shake animation to file input
-        const label = document.querySelector('label[for="fileInput"]');
-        label.style.animation = 'shake 0.5s';
-        setTimeout(() => {
-          label.style.animation = '';
-        }, 500);
-        return;
-      }
+    // document.getElementById('converterForm').addEventListener('submit', function(e) {
+    //   const fileInput = document.getElementById('fileInput');
+    //   if (!fileInput.value) {
+    //     e.preventDefault();
+    //     // Add shake animation to file input
+    //     const label = document.querySelector('label[for="fileInput"]');
+    //     label.style.animation = 'shake 0.5s';
+    //     setTimeout(() => {
+    //       label.style.animation = '';
+    //     }, 500);
+    //     return;
+    //   }
       
-      const button = document.querySelector('button');
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      button.style.opacity = '0.9';
-      button.disabled = true;
-    });
+    //   const button = document.querySelector('button');
+    //   button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    //   button.style.opacity = '0.9';
+    //   button.disabled = true;
+    // });
+
+
+    document.getElementById('converterForm').addEventListener('submit', function(e) {
+  const fileInput = document.getElementById('fileInput');
+  if (!fileInput.value) {
+    e.preventDefault();
+    // Add shake animation to file input
+    const label = document.querySelector('label[for="fileInput"]');
+    label.style.animation = 'shake 0.5s';
+    setTimeout(() => {
+      label.style.animation = '';
+    }, 500);
+    return;
+  }
+
+  const button = document.querySelector('button');
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+  button.style.opacity = '0.9';
+  button.disabled = true;
+
+  // ⏳ Reset after 1 second
+  setTimeout(() => {
+    button.innerHTML = '<i class="fas fa-sync-alt"></i> Convert & Download XML';
+    button.style.opacity = '1';
+    button.disabled = false;
+  }, 1000);
+});
 
     // Add shake animation for error state
     const style = document.createElement('style');

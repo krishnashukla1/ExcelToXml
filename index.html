@@ -1,0 +1,382 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Excel → XML Converter</title>
+</head>
+<body>
+  <h1>Upload Excel & Download XML</h1>
+  <form id="uploadForm" enctype="multipart/form-data" method="post" action="http://localhost:3000/convert">
+    <input type="file" name="file" accept=".xlsx,.xls" required />
+    <button type="submit">Convert</button>
+  </form>
+</body>
+</html> -->
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Excel → XML Converter</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 400px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .file-input {
+      margin: 20px 0;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #4facfe;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    label:hover {
+      background: #0072ff;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      background: #00c6ff;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #0072ff;
+    }
+
+    .info {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 15px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Excel → XML Converter</h1>
+    <form action="/convert" method="POST" enctype="multipart/form-data">
+      <div class="file-input">
+        <input type="file" name="file" id="fileInput" required />
+        <label for="fileInput">Choose Excel File</label>
+      </div>
+      <button type="submit">Convert & Download XML</button>
+    </form>
+    <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and download as XML.</p>
+  </div>
+</body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Excel → XML Converter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Glassmorphism Container */
+    .container {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+      transform: rotate(30deg);
+      z-index: -1;
+    }
+
+    /* Header Styling */
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 25px;
+      color: #333;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    /* Form Styling */
+    form {
+      margin-top: 20px;
+    }
+
+    /* File Input Styling */
+    .file-input {
+      margin: 25px 0;
+      position: relative;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 30px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      gap: 10px;
+    }
+
+    label:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    label:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Button Styling */
+    button {
+      margin-top: 25px;
+      padding: 16px 35px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #56ab2f, #a8e063);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(86, 171, 47, 0.6);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(86, 171, 47, 0.4);
+    }
+
+    /* Info Text */
+    .info {
+      font-size: 0.95rem;
+      color: #555;
+      margin-top: 25px;
+      line-height: 1.5;
+    }
+
+    /* File Name Display */
+    .file-name {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #667eea;
+      font-weight: 500;
+      height: 20px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 10px;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 500px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 1.7rem;
+      }
+      
+      label, button {
+        padding: 14px 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Excel → XML Converter</h1>
+    <form action="/convert" method="POST" enctype="multipart/form-data" id="converterForm">
+      <div class="file-input">
+        <input type="file" name="file" id="fileInput" accept=".xls,.xlsx" required />
+        <label for="fileInput">
+          <i class="fas fa-file-excel"></i> Choose Excel File
+        </label>
+        <div class="file-name" id="fileName"></div>
+      </div>
+      <button type="submit">
+        <i class="fas fa-sync-alt"></i> Convert & Download XML
+      </button>
+    </form>
+    <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and instantly download the converted XML file.</p>
+  </div>
+
+  <script>
+    // Display file name when selected
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || '';
+      document.getElementById('fileName').textContent = fileName;
+    });
+
+    // Add animation on form submission
+    document.getElementById('converterForm').addEventListener('submit', function(e) {
+      const fileInput = document.getElementById('fileInput');
+      if (!fileInput.value) {
+        e.preventDefault();
+        // Add shake animation to file input
+        const label = document.querySelector('label[for="fileInput"]');
+        label.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+          label.style.animation = '';
+        }, 500);
+        return;
+      }
+      
+      const button = document.querySelector('button');
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      button.style.opacity = '0.9';
+      button.disabled = true;
+    });
+
+    // Add shake animation for error state
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
+

@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Excel → XML Converter</title>
   <!-- Favicon -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="icon" href="a1.png" type="image/png" />
-  <link rel="apple-touch-icon" href="a2.png" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -26,16 +24,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
     }
 
     /* Glassmorphism Container */
     .container {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-radius: 20px;
-      padding: 40px;
+      padding: 32px 24px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
       width: 100%;
       max-width: 450px;
@@ -44,6 +42,7 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       position: relative;
       overflow: hidden;
+      margin: 16px;
     }
 
     .container::before {
@@ -60,13 +59,14 @@
 
     /* Header Styling */
     h1 {
-      font-size: 2rem;
-      margin-bottom: 25px;
+      font-size: 1.75rem;
+      margin-bottom: 20px;
       color: #333;
       font-weight: 700;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       position: relative;
       display: inline-block;
+      line-height: 1.3;
     }
 
     h1::after {
@@ -83,12 +83,12 @@
 
     /* Form Styling */
     form {
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
     /* File Input Styling */
     .file-input {
-      margin: 25px 0;
+      margin: 20px 0;
       position: relative;
     }
 
@@ -100,7 +100,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 16px 30px;
+      padding: 14px 24px;
       background: linear-gradient(90deg, #667eea, #764ba2);
       color: white;
       font-weight: 600;
@@ -108,7 +108,10 @@
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-      gap: 10px;
+      gap: 8px;
+      font-size: 0.95rem;
+      width: 100%;
+      max-width: 280px;
     }
 
     label:hover {
@@ -123,21 +126,23 @@
 
     /* Button Styling */
     button {
-      margin-top: 25px;
-      padding: 16px 35px;
+      margin-top: 20px;
+      padding: 14px 28px;
       border: none;
       border-radius: 12px;
       background: linear-gradient(90deg, #56ab2f, #a8e063);
       color: white;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
+      width: 100%;
+      max-width: 280px;
     }
 
     button:hover {
@@ -152,16 +157,17 @@
 
     /* Info Text */
     .info {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: #555;
-      margin-top: 25px;
+      margin-top: 20px;
       line-height: 1.5;
+      padding: 0 8px;
     }
 
     /* File Name Display */
     .file-name {
-      margin-top: 15px;
-      font-size: 0.9rem;
+      margin-top: 12px;
+      font-size: 0.85rem;
       color: #667eea;
       font-weight: 500;
       height: 20px;
@@ -173,8 +179,8 @@
 
     /* Status Message */
     .status-message {
-      margin-top: 15px;
-      font-size: 0.9rem;
+      margin-top: 12px;
+      font-size: 0.85rem;
       min-height: 20px;
       color: #764ba2;
       font-weight: 500;
@@ -207,19 +213,48 @@
       }
     }
 
-    /* Responsive Design */
-    @media (max-width: 500px) {
+    /* Responsive Design for Mobile */
+    @media (max-width: 380px) {
       .container {
-        padding: 30px 20px;
+        padding: 24px 16px;
+        margin: 12px;
       }
 
       h1 {
-        font-size: 1.7rem;
+        font-size: 1.5rem;
+        margin-bottom: 16px;
       }
 
-      label,
-      button {
-        padding: 14px 25px;
+      label, button {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+      }
+      
+      .info {
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 340px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+      
+      label, button {
+        padding: 12px 16px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Mobile landscape optimization */
+    @media (max-height: 500px) and (orientation: landscape) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 20px;
+        max-width: 400px;
       }
     }
   </style>
@@ -241,8 +276,7 @@
       </button>
     </form>
     <div class="status-message" id="statusMessage"></div>
-    <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and instantly download the
-      converted XML file.</p>
+    <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and instantly download the converted XML file.</p>
   </div>
 
   <script>

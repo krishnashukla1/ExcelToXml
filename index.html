@@ -27,55 +27,6 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      position: relative;
-    }
-
-    /* Loading Overlay */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      color: white;
-      transition: opacity 0.5s ease;
-    }
-
-    .loading-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-      margin-bottom: 20px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .loading-text {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-
-    .loading-subtext {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      max-width: 300px;
-      text-align: center;
     }
 
     /* Glassmorphism Container */
@@ -93,14 +44,6 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       position: relative;
       overflow: hidden;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .container.visible {
-      opacity: 1;
-      transform: translateY(0);
     }
 
     .container::before {
@@ -228,6 +171,15 @@
       padding: 0 10px;
     }
 
+    /* Status Message */
+    .status-message {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      min-height: 20px;
+      color: #764ba2;
+      font-weight: 500;
+    }
+
     /* Animation */
     @keyframes fadeIn {
       from {
@@ -269,24 +221,12 @@
       button {
         padding: 14px 25px;
       }
-      
-      .loading-subtext {
-        font-size: 0.8rem;
-        max-width: 250px;
-      }
     }
   </style>
 </head>
 
 <body>
-  <!-- Loading Overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <div class="loading-text">Waking up server...</div>
-    <div class="loading-subtext">This might take up to 30 seconds on the first visit (Render free instance)</div>
-  </div>
-
-  <div class="container" id="mainContainer">
+  <div class="container">
     <h1>Excel → XML Converter</h1>
     <form action="/convert" method="POST" enctype="multipart/form-data" id="converterForm">
       <div class="file-input">
@@ -300,6 +240,7 @@
         <i class="fas fa-sync-alt"></i> Convert & Download XML
       </button>
     </form>
+    <div class="status-message" id="statusMessage"></div>
     <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and instantly download the
       converted XML file.</p>
   </div>
@@ -314,6 +255,8 @@
     // Add animation on form submission
     document.getElementById('converterForm').addEventListener('submit', function (e) {
       const fileInput = document.getElementById('fileInput');
+      const statusMessage = document.getElementById('statusMessage');
+      
       if (!fileInput.value) {
         e.preventDefault();
         // Add shake animation to file input
@@ -329,6 +272,19 @@
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
       button.style.opacity = '0.9';
       button.disabled = true;
+      
+      // Show status message
+      statusMessage.textContent = 'Converting your file...';
+      
+      // Set a timeout to handle cases where the server is waking up
+      const timeout = setTimeout(() => {
+        statusMessage.textContent = 'Server is waking up, this may take a moment...';
+      }, 3000);
+      
+      // Clear timeout when the page unloads (form submits successfully)
+      window.addEventListener('beforeunload', function() {
+        clearTimeout(timeout);
+      });
     });
 
     // Add shake animation for error state
@@ -342,44 +298,17 @@
     `;
     document.head.appendChild(style);
 
-    // Handle server wake-up time
+    // Pre-wake the server when the page loads
     window.addEventListener('load', function() {
-      // First, try to ping the server to check if it's awake
+      // Silently ping the server to wake it up
       fetch('/convert', { 
         method: 'HEAD',
         cache: 'no-cache'
-      }).then(() => {
-        // Server is responding, hide loading overlay
-        hideLoading();
-      }).catch(() => {
-        // Server not responding yet, try again after a delay
-        setTimeout(() => {
-          fetch('/convert', { 
-            method: 'HEAD',
-            cache: 'no-cache'
-          }).finally(() => {
-            // Regardless of response, show the UI after max 15 seconds
-            hideLoading();
-          });
-        }, 5000);
+      }).catch(error => {
+        // This is expected - we're just waking the server
+        console.log('Server wake-up call sent');
       });
-      
-      // Fallback: always show UI after 15 seconds max
-      setTimeout(hideLoading, 15000);
     });
-
-    function hideLoading() {
-      const overlay = document.getElementById('loadingOverlay');
-      const container = document.getElementById('mainContainer');
-      
-      overlay.classList.add('hidden');
-      container.classList.add('visible');
-      
-      // Remove overlay from DOM after transition completes
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 500);
-    }
   </script>
 </body>
 

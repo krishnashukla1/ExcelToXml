@@ -1,29 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Excel → XML Converter</title>
   <!-- Favicon -->
-
-
-
-<!-- 
-  <link rel="icon" href="a1.png" type="image/png" />
-  <link rel="icon" href="favicon.ico" type="image/png" />
-  <link rel="icon" href="a2.ico" type="image/png" /> -->
-
-
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="icon" href="a1.png" type="image/png" />
   <link rel="apple-touch-icon" href="a2.png" />
-
-
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
-<style>
+  <style>
     /* Base Styles */
     * {
       margin: 0;
@@ -39,6 +27,55 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      color: white;
+      transition: opacity 0.5s ease;
+    }
+
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .loading-subtext {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      max-width: 300px;
+      text-align: center;
     }
 
     /* Glassmorphism Container */
@@ -56,6 +93,14 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       position: relative;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .container.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .container::before {
@@ -65,7 +110,7 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 60%);
       transform: rotate(30deg);
       z-index: -1;
     }
@@ -76,7 +121,7 @@
       margin-bottom: 25px;
       color: #333;
       font-weight: 700;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       position: relative;
       display: inline-block;
     }
@@ -185,14 +230,29 @@
 
     /* Animation */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     /* Responsive Design */
@@ -200,22 +260,33 @@
       .container {
         padding: 30px 20px;
       }
-      
+
       h1 {
         font-size: 1.7rem;
       }
-      
-      label, button {
+
+      label,
+      button {
         padding: 14px 25px;
+      }
+      
+      .loading-subtext {
+        font-size: 0.8rem;
+        max-width: 250px;
       }
     }
   </style>
-
-
-
 </head>
+
 <body>
-  <div class="container">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Waking up server...</div>
+    <div class="loading-subtext">This might take up to 30 seconds on the first visit (Render free instance)</div>
+  </div>
+
+  <div class="container" id="mainContainer">
     <h1>Excel → XML Converter</h1>
     <form action="/convert" method="POST" enctype="multipart/form-data" id="converterForm">
       <div class="file-input">
@@ -229,44 +300,36 @@
         <i class="fas fa-sync-alt"></i> Convert & Download XML
       </button>
     </form>
-    <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and instantly download the converted XML file.</p>
+    <p class="info">Upload your <strong>.xls</strong> or <strong>.xlsx</strong> file and instantly download the
+      converted XML file.</p>
   </div>
 
   <script>
     // Display file name when selected
-    document.getElementById('fileInput').addEventListener('change', function(e) {
+    document.getElementById('fileInput').addEventListener('change', function (e) {
       const fileName = e.target.files[0]?.name || '';
       document.getElementById('fileName').textContent = fileName;
     });
 
     // Add animation on form submission
+    document.getElementById('converterForm').addEventListener('submit', function (e) {
+      const fileInput = document.getElementById('fileInput');
+      if (!fileInput.value) {
+        e.preventDefault();
+        // Add shake animation to file input
+        const label = document.querySelector('label[for="fileInput"]');
+        label.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+          label.style.animation = '';
+        }, 500);
+        return;
+      }
 
-
-    document.getElementById('converterForm').addEventListener('submit', function(e) {
-  const fileInput = document.getElementById('fileInput');
-  if (!fileInput.value) {
-    e.preventDefault();
-    // Add shake animation to file input
-    const label = document.querySelector('label[for="fileInput"]');
-    label.style.animation = 'shake 0.5s';
-    setTimeout(() => {
-      label.style.animation = '';
-    }, 500);
-    return;
-  }
-
-  const button = document.querySelector('button');
-  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-  button.style.opacity = '0.9';
-  button.disabled = true;
-
-  // ⏳ Reset after 1 second
-  setTimeout(() => {
-    button.innerHTML = '<i class="fas fa-sync-alt"></i> Convert & Download XML';
-    button.style.opacity = '1';
-    button.disabled = false;
-  }, 1000);
-});
+      const button = document.querySelector('button');
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      button.style.opacity = '0.9';
+      button.disabled = true;
+    });
 
     // Add shake animation for error state
     const style = document.createElement('style');
@@ -278,7 +341,46 @@
       }
     `;
     document.head.appendChild(style);
+
+    // Handle server wake-up time
+    window.addEventListener('load', function() {
+      // First, try to ping the server to check if it's awake
+      fetch('/convert', { 
+        method: 'HEAD',
+        cache: 'no-cache'
+      }).then(() => {
+        // Server is responding, hide loading overlay
+        hideLoading();
+      }).catch(() => {
+        // Server not responding yet, try again after a delay
+        setTimeout(() => {
+          fetch('/convert', { 
+            method: 'HEAD',
+            cache: 'no-cache'
+          }).finally(() => {
+            // Regardless of response, show the UI after max 15 seconds
+            hideLoading();
+          });
+        }, 5000);
+      });
+      
+      // Fallback: always show UI after 15 seconds max
+      setTimeout(hideLoading, 15000);
+    });
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      const container = document.getElementById('mainContainer');
+      
+      overlay.classList.add('hidden');
+      container.classList.add('visible');
+      
+      // Remove overlay from DOM after transition completes
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 500);
+    }
   </script>
 </body>
-</html>
 
+</html>
